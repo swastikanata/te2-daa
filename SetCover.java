@@ -26,6 +26,9 @@ class SetCover {
     }
     
     public static void test(int n, List<List<Integer>> subs, List<Integer> costs) {
+        double startTime, endTime, beforeUsedMemory, afterUsedMemory, memoryUsed, timeTaken;
+        Runtime runtime = Runtime.getRuntime();
+
         Set<Integer> universe = new HashSet<>();
         for (int i = 1; i <= n; i++) {
             universe.add(i);
@@ -40,16 +43,27 @@ class SetCover {
             }
             subsets.add(set);
         }
-        long startTime = System.nanoTime();
+        startTime = System.currentTimeMillis();
+        System.gc();
+        beforeUsedMemory = runtime.totalMemory() - runtime.freeMemory();
         int[] result = greedy(universe, subsets, costs);
-        long runningTime = System.nanoTime() - startTime;
+        afterUsedMemory = runtime.totalMemory() - runtime.freeMemory();
+        endTime = System.currentTimeMillis();
+        memoryUsed = (double) (afterUsedMemory - beforeUsedMemory) / 1024.0;
+        timeTaken = (double) (endTime - startTime);
         System.out.println("cost = " + result[subsets.size()]);
-        System.out.println("time = " + runningTime);
+        System.out.println("time = " + timeTaken);
+        System.out.println("memory = " + memoryUsed);
 
         System.out.println("Branch and Bound for " + n + " elements");
-        startTime = System.nanoTime();
+        startTime = System.currentTimeMillis();
+        System.gc();
+        beforeUsedMemory = runtime.totalMemory() - runtime.freeMemory();
         result = branchAndBound(universe, subsets, costs);
-        runningTime = System.nanoTime() - startTime;
+        afterUsedMemory = runtime.totalMemory() - runtime.freeMemory();
+        endTime = System.currentTimeMillis();
+        memoryUsed = (double) (afterUsedMemory - beforeUsedMemory) / 1024.0;
+        timeTaken = (double) (endTime - startTime);
         List<List<Integer>> cover = new ArrayList<>();
         for (int i = 0; i < subsets.size(); i++) {
             if (result[i] == 1) {
@@ -57,7 +71,8 @@ class SetCover {
             }
         }
         System.out.println("cost = " + result[subsets.size()]);
-        System.out.println("time = " + runningTime);
+        System.out.println("time = " + timeTaken);
+        System.out.println("memory = " + memoryUsed);
 
         System.out.println();
     }
@@ -75,7 +90,7 @@ class SetCover {
         int cost = 0;
         Set<Integer> covered = new HashSet<>();
         int[] cover = new int[subsets.size()];
-
+        
         while (!covered.equals(elements)) {
             int maxIndex = -1;
             double maxRatio = 0;
